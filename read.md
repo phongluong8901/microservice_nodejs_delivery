@@ -49,3 +49,6 @@ cd frontend
 5. docker
 
 6. deploy
+
+7. link
+- mongo atlat
