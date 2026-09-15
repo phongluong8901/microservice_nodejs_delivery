@@ -52,3 +52,4 @@ cd frontend
 
 7. link
 - mongo atlat
+https://cloud.mongodb.com/v2/6aa90c18451a176500747908#/explorer
