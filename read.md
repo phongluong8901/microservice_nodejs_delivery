@@ -21,6 +21,15 @@ npm i -D typescript
 
 --- cd restaurant
 npm init -y
+npm i @types/express @types/dotenv @types/multer @types/mongoose @types/axios @types/cors
+npm i -D @types/express  @types/jsonwebtoken @types/dotenv @types/multer @types/mongoose @types/axios @types/cors
+
+npm i -D concurrently typescript
+
+tsc
+
+
+
 --- cd rider
 npm init -y
 --- cd admin
@@ -34,7 +43,7 @@ cd frontend
 npm create vite@latest .
 
 create-vite@9.2.1
-Ok to proceed? (y) y
+Ok to proceed? (y) y 
 
 
 > npx
@@ -72,6 +81,7 @@ cd proj_1
 # --- BE
 cd service
 - cd auth
+- cd restaurant
 
 npm run build
 npm start

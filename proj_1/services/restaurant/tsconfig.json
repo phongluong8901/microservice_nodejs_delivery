@@ -1,0 +1,48 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    // --- File Layout ---
+    "rootDir": "./src", // Thư mục chứa mã nguồn TypeScript gốc của bạn
+    "outDir": "./dist", // Thư mục chứa file JavaScript sau khi biên dịch (compile) xong
+    // --- Environment Settings ---
+    // See also https://aka.ms/tsconfig/module
+    "module": "nodenext", // Quy định định dạng module sử dụng chuẩn hiện đại cho Node.js (hỗ trợ ES modules)
+    "moduleResolution": "nodenext", // Cách TypeScript tìm kiếm và phân giải các file module (đi kèm với nodenext)
+    // "target": "esnext",
+    "target": "ES2020", // Phiên bản JavaScript đích mà code TypeScript sẽ được biên dịch ra (ES2020)
+    // For nodejs:
+    "lib": [
+      "ES2020" // Các thư viện chuẩn của JavaScript được phép sử dụng trong môi trường (ở đây dùng ES2020)
+    ],
+    "types": [
+      "node" // Khai báo các kiểu dữ liệu toàn cục cho Node.js (cần cài thêm gói @types/node)
+    ],
+    // and npm install -D @types/node
+    // --- Other Outputs ---
+    "sourceMap": false, // Không tạo file .map (dùng để debug code TS gốc qua JS), để false cho nhẹ
+    "declaration": false, // Không tự động sinh file định nghĩa kiểu dữ liệu (.d.ts)
+    "declarationMap": false, // Không sinh file source map cho các file declaration
+    // --- Stricter Typechecking Options ---
+    // "noUncheckedIndexedAccess": true,
+    // "exactOptionalPropertyTypes": true,
+    // --- Style Options ---
+    // "noImplicitReturns": true,
+    // "noImplicitOverride": true,
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "noFallthroughCasesInSwitch": true,
+    // "noPropertyAccessFromIndexSignature": true,
+    // --- Recommended Options ---
+    "strict": true, // Bật toàn bộ các chế độ kiểm tra kiểu dữ liệu nghiêm ngặt của TypeScript
+    // "jsx": "react-jsx",
+    // "verbatimModuleSyntax": true,
+    // "isolatedModules": true,
+    // "noUncheckedSideEffectImports": true,
+    // "moduleDetection": "force",
+    "skipLibCheck": true, // Bỏ qua việc kiểm tra kiểu dữ liệu của các thư viện bên thứ 3 (trong node_modules) giúp tăng tốc build
+    "esModuleInterop": true, // Cho phép import các thư viện CommonJS theo kiểu ES Modules (vd: import express from 'express')
+    "resolveJsonModule": true, // Cho phép import trực tiếp file .json vào trong code (vd: import data from './config.json')
+    "noUncheckedIndexedAccess": true, // Báo lỗi nếu truy xuất mảng/object bằng index mà không kiểm tra xem nó có tồn tại hay không (an toàn hơn)
+    "exactOptionalPropertyTypes": true // Cho phép gán giá trị undefined rõ ràng cho các thuộc tính tùy chọn (optional properties)
+  }
+}
