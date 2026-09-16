@@ -21,6 +21,7 @@ npm i -D typescript
 
 --- cd restaurant
 npm init -y
+npm i express dotenv multer mongoose axios cors datauri jsonwebtoken
 npm i @types/express @types/dotenv @types/multer @types/mongoose @types/axios @types/cors
 npm i -D @types/express  @types/jsonwebtoken @types/dotenv @types/multer @types/mongoose @types/axios @types/cors
 
@@ -35,7 +36,13 @@ npm init -y
 --- cd admin
 npm init -y
 --- realtime
+
 --- utils
+npm init -y
+npm i express dotenv cloudinary
+npm i -D @types/express @types/dotenv concurrently typescript
+npm i cors
+npm i -D @types/cors
 
 
 # --- FE
@@ -82,6 +89,7 @@ cd proj_1
 cd service
 - cd auth
 - cd restaurant
+- cd utils
 
 npm run build
 npm start
@@ -102,3 +110,5 @@ npm run dev
 https://cloud.mongodb.com/v2/6aa90c18451a176500747908#/explorer
 - google oauth2.0
 https://console.cloud.google.com/auth/clients?project=microservice-nodejs-delivery
+- cloudinary
+https://console.cloudinary.com/app/c-772f9c0dead98ae314d09274664e33/assets/

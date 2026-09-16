@@ -10,7 +10,9 @@ export interface AuthenticatedRequest extends Request {
 }
 
 // Định nghĩa hàm middleware isAuth dùng để kiểm tra tính hợp lệ của token trước khi cho phép đi tiếp vào controller
-export const isAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const isAuth = async (
+    req: AuthenticatedRequest, res: Response, next: NextFunction
+): Promise<void> => {
     try {
         // Lấy chuỗi header Authorization từ yêu cầu
         const authHeader = req.headers.authorization;
@@ -54,4 +56,19 @@ export const isAuth = async (req: AuthenticatedRequest, res: Response, next: Nex
         });
         return;
     }
+}
+
+export const isSeller = async (
+    req: AuthenticatedRequest, res: Response, next: NextFunction
+): Promise<void> => {
+    const user = req.user
+
+    if (user && user.role !== "seller") {
+        res.status(401).json({
+            message: "You are not authorized seller",
+        });
+        return;
+    }
+
+    next();
 }
