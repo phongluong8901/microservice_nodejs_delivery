@@ -6,7 +6,9 @@ import { AuthenticatedRequest } from "../middlewares/isAuth.js";
 import { oauth2Client } from "../config/googleConfig.js";
 import axios from "axios";
 
+// 1. Hàm đăng nhập/đăng ký thông qua Google OAuth Code
 export const loginUser = TryCatch(async (req: Request, res: Response) => {
+    // Lấy authorization code từ client gửi lên
     const { code } = req.body;
     if (!code) {
         return res.status(400).json({
@@ -14,52 +16,58 @@ export const loginUser = TryCatch(async (req: Request, res: Response) => {
         });
     }
 
+    // Dùng code đổi lấy token từ Google
     const googleRes = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(googleRes.tokens);
 
+    // Gọi API của Google để lấy thông tin chi tiết của người dùng
     const userRes = await axios.get(
-        `https://googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
+        `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
     )
 
-    try {
-        const { email, name, picture } = userRes.data;
+    // Trích xuất thông tin người dùng
+    const { email, name, picture } = userRes.data;
 
-        let user = await User.findOne({ email });
+    // Tìm xem user đã tồn tại trong MongoDB chưa theo email
+    let user = await User.findOne({ email });
 
-        if (!user) {
-            user = await User.create({
-                name,
-                email,
-                image: picture,
-            });
-        }
-
-        const token = jwt.sign({ user }, process.env.JWT_SEC as string, {
-            expiresIn: "15d",
+    // Nếu chưa có, tạo mới một tài khoản user trong cơ sở dữ liệu
+    if (!user) {
+        user = await User.create({
+            name,
+            email,
+            image: picture,
         });
-
-        res.status(200).json({
-            message: "Logged Success",
-            token,
-            user
-        });
-    } catch (error: any) {
-        res.status(500).json({
-            message: error.message
-        })
     }
+
+    // Tạo JWT token riêng của ứng dụng cho user
+    const token = jwt.sign({ user }, process.env.JWT_SEC as string, {
+        expiresIn: "15d", // Token có hiệu lực trong 15 ngày
+    });
+
+    // Trả về thông tin user và token cho client
+    res.status(200).json({
+        message: "Logged Success",
+        token,
+        user
+    });
+
 })
 
+// Định nghĩa danh sách các role hợp lệ cho phép người dùng chọn
 const allowedRoles = ["customer", "rider", "seller"] as const;
 type Role = (typeof allowedRoles)[number];
 
+// 2. Hàm cập nhật role (vai trò) cho người dùng
 export const addUserRole = TryCatch(async (req: AuthenticatedRequest, res: Response) => {
+    // Kiểm tra xem request đã được xác thực qua middleware isAuth chưa
     if (!req.user?._id) {
         return res.status(401).json({
             message: "Unauthorized",
         });
     }
 
+    // Lấy role được gửi lên từ body
     const { role } = req.body as { role: Role };
     if (!allowedRoles.includes(role)) {
         return res.status(400).json({
@@ -67,6 +75,7 @@ export const addUserRole = TryCatch(async (req: AuthenticatedRequest, res: Respo
         })
     }
 
+    // Tìm user theo ID và cập nhật role mới, trả về dữ liệu sau khi update
     const user = await User.findByIdAndUpdate(req.user._id, { role }, { new: true })
 
     if (!user) {
@@ -75,6 +84,7 @@ export const addUserRole = TryCatch(async (req: AuthenticatedRequest, res: Respo
         });
     }
 
+    // Tạo lại JWT token mới chứa thông tin user đã cập nhật role
     const token = jwt.sign({ user }, process.env.JWT_SEC as string, {
         expiresIn: "15d",
     });
@@ -82,7 +92,9 @@ export const addUserRole = TryCatch(async (req: AuthenticatedRequest, res: Respo
     res.json({ user, token });
 })
 
+// 3. Hàm lấy thông tin profile của chính user đang đăng nhập
 export const myProfile = TryCatch(async (req: AuthenticatedRequest, res) => {
+    // Lấy thông tin user đã được gắn sẵn từ middleware isAuth
     const user = req.user;
     res.json(user);
 })

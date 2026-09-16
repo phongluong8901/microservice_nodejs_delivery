@@ -28,8 +28,10 @@ npm init -y
 --- realtime
 --- utils
 
+
 # --- FE
 cd frontend
+npm create vite@latest
 
 3. run
 cd proj_1
