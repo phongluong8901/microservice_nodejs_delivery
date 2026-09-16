@@ -8,8 +8,10 @@ dotenv.config();
 
 const app = express()
 
+// Cho phép các service khác hoặc frontend gọi API vượt qua chính sách CORS
 app.use(cors());
 
+// Tăng giới hạn payload lên 50mb để đảm bảo khi client gửi file ảnh lớn (dạng chuỗi base64) lên server không bị lỗi "PayloadTooLargeError"
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
@@ -18,6 +20,7 @@ if (!CLOUD_NAME || !CLOUD_API_KEY || !CLOUD_SECRET_KEY) {
     throw new Error("Missing Cloudinary environment variables");
 }
 
+// Xác thực với Cloudinary bằng thông tin lấy từ .env
 cloudinary.v2.config({
     cloud_name: CLOUD_NAME,
     api_key: CLOUD_API_KEY,
