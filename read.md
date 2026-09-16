@@ -31,7 +31,40 @@ npm init -y
 
 # --- FE
 cd frontend
-npm create vite@latest
+npm create vite@latest .
+
+create-vite@9.2.1
+Ok to proceed? (y) y
+
+
+> npx
+> create-vite .
+
+│
+◇  Select a framework:
+│  React
+│
+◇  Select a variant:
+│  TypeScript
+│
+◇  Which linter to use?
+│  Oxlint
+│
+◇  Install with npm and start now?
+│  Yes
+│
+◇  Scaffolding project in D:\A_Self_Proj\learn_delivery_food_microservice\proj_1\frontend...
+│
+◇  Installing dependencies with npm...
+
+- tailwind
+https://tailwindcss.com/docs/installation/using-vite
+
+npm install tailwindcss @tailwindcss/vite
+
+npm i react-router-dom axios react-hot-toast
+
+
 
 3. run
 cd proj_1
@@ -45,7 +78,7 @@ npm run dev
 
 # --- FE
 cd frontend
-
+npm run dev
 
 4. migrate
 
