@@ -35,6 +35,7 @@ cd frontend
 cd proj_1
 # --- BE
 cd service
+- cd auth
 
 npm run build
 npm start
@@ -53,3 +54,5 @@ cd frontend
 7. link
 - mongo atlat
 https://cloud.mongodb.com/v2/6aa90c18451a176500747908#/explorer
+- google oauth2.0
+https://console.cloud.google.com/auth/clients?project=microservice-nodejs-delivery
