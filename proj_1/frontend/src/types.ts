@@ -24,6 +24,9 @@ export interface AppContextType {
     setUser: React.Dispatch<React.SetStateAction<User | null>>,
     setIsAuth: React.Dispatch<React.SetStateAction<boolean>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    location: LocationData | null;
+    loadingLocation: boolean,
+    city: string
 }
 
 // Khi bạn khai báo const [user, setUser] = useState(...), thì hàm setUser chính là một hàm thuộc kiểu Dispatch.

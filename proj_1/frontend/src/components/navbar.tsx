@@ -5,7 +5,7 @@ import { CgShoppingCart } from "react-icons/cg";
 import { BiMapPin, BiSearch } from "react-icons/bi";
 
 const Navbar = () => {
-    const { isAuth } = useAppData(); // Lấy trạng thái đăng nhập từ Context
+    const { isAuth, city } = useAppData(); // Lấy trạng thái đăng nhập từ Context
     const currLocation = useLocation();// Lấy thông tin về đường dẫn URL hiện tại
 
     const isHomePage = currLocation.pathname === "/"; // Kiểm tra xem có phải đang ở trang chủ không
@@ -64,7 +64,7 @@ const Navbar = () => {
                         {/* Phần hiển thị vị trí / thành phố */}
                         <div className="flex items-center gap-2 px-3 border-r text-gray-700">
                             <BiMapPin className="h-4 w-4 text-[#E23744]" />
-                            <span className="text-sm truncate max-w-35">city</span>
+                            <span className="text-sm truncate max-w-35">{city}</span>
                         </div>
 
                         {/* Ô nhập từ khóa tìm kiếm nhà hàng/món ăn */}

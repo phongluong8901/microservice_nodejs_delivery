@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { authService } from "../main";
 import axios from "axios";
-import type { AppContextType, User } from "../types";
+import type { AppContextType, LocationData, User } from "../types";
 
 // Khởi tạo một React Context chứa thông tin toàn cục, giá trị ban đầu là undefined
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -19,7 +19,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     const [loading, setLoading] = useState(false);
 
     // Khai báo thêm các state phụ trợ cho vị trí địa lý
-    const [location, setLocation] = useState(null);
+    const [location, setLocation] = useState<LocationData | null>(null); //location này sẽ có kiểu dữ liệu là LocationData
     const [loadingLocation, setLoadingLocation] = useState(false);
     const [city, setCity] = useState("Fecthing Location...");
 
@@ -46,6 +46,45 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         fetchUser();
     }, []);
 
+    useEffect(() => {
+        if (!navigator.geolocation)
+            return alert("Please allow Location to continue");
+        setLoadingLocation(true);
+
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const { latitude, longitude } = position.coords;
+
+            try {
+                const res = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+                );
+                const data = await res.json();
+
+                // Cập nhật state vị trí của bạn (tùy thuộc vào cấu trúc state bạn đã định nghĩa)
+                setLocation({
+                    latitude,
+                    longitude,
+                    formattedAddress: data.display_name || "current Location",
+                });
+
+                setCity(
+                    data.address.city ||
+                    data.address.town ||
+                    data.address.village ||
+                    "Your Location",
+                )
+
+            } catch (error) {
+                setLocation({
+                    latitude,
+                    longitude,
+                    formattedAddress: "Current Location"
+                });
+                setCity("Failed to load");
+            }
+        })
+    }, []);
+
     // Cung cấp các giá trị state và hàm cập nhật cho tất cả các component
     return (
         <AppContext.Provider value={{
@@ -54,7 +93,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
             setIsAuth,
             setLoading,
             setUser,
-            user
+            user, location, loadingLocation, city
         }}>
             {children}
         </AppContext.Provider>

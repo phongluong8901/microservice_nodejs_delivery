@@ -6,6 +6,7 @@ import ProtectedRoute from './components/protectedRoutes';
 import PublicRoute from './components/publicRoutes';
 import SelectRole from './pages/SelectRole';
 import Navbar from './components/navbar';
+import Account from './pages/Account';
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
             {/* Chỉ cho phép truy cập vào trang Home khi đã đăng nhập */}
             <Route path='/' element={<Home />} />
             <Route path='/select-role' element={<SelectRole />} />
+            <Route path='/account' element={<Account />} />
           </Route>
 
         </Routes>

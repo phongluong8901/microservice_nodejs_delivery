@@ -25,7 +25,7 @@ const Login = () => {
             // Lưu token vào localStorage để duy trì phiên đăng nhập
             localStorage.setItem("token", result.data.token);
             // Hiển thị thông báo thành công
-            toast.success(result.data.mesasge);
+            toast.success(result.data.message);
 
             // Tắt loading
             setLoading(false);
