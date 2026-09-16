@@ -21,3 +21,9 @@ git checkout -b p4_frontend_some_pages
 git add .
 git commit -m "change: first"
 git push origin -u p4_frontend_some_pages
+
+---
+git checkout -b p5_restaurant_service
+git add .
+git commit -m "change: first"
+git push origin -u p5_restaurant_service
