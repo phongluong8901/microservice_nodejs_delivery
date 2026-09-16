@@ -63,7 +63,8 @@ https://tailwindcss.com/docs/installation/using-vite
 npm install tailwindcss @tailwindcss/vite
 
 npm i react-router-dom axios react-hot-toast
-
+npm i @react-oauth/google
+npm i react-icons
 
 
 3. run
