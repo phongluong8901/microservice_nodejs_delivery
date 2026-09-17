@@ -81,6 +81,7 @@ npm install tailwindcss @tailwindcss/vite
 npm i react-router-dom axios react-hot-toast
 npm i @react-oauth/google
 npm i react-icons
+npm install lucide-react
 
 
 3. run
