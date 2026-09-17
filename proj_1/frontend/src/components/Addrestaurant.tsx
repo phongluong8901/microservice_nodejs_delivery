@@ -5,7 +5,11 @@ import { restaurantService } from "../main";
 import axios from "axios";
 import { BiMapPin, BiUpload } from "react-icons/bi";
 
-const Addrestaurant = () => {
+interface props {
+    fetchMyRestaurant: () => Promise<void>;
+}
+
+const Addrestaurant = ({ fetchMyRestaurant }: props) => {
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
     const [phone, setPhone] = useState("")
@@ -40,6 +44,7 @@ const Addrestaurant = () => {
                 });
 
             toast.success("Restaurant Added successfully");
+            fetchMyRestaurant();
         } catch (error: any) {
             toast.error(error.response.data.message)
         } finally {

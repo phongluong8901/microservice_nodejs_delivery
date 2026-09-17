@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { authService } from "../main";
 import axios from "axios";
 import type { AppContextType, LocationData, User } from "../types";
+import { Toaster } from "react-hot-toast";
 
 // Khởi tạo một React Context chứa thông tin toàn cục, giá trị ban đầu là undefined
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -98,6 +99,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
             user, location, loadingLocation, city
         }}>
             {children}
+            <Toaster />
         </AppContext.Provider>
     )
 
