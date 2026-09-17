@@ -9,6 +9,7 @@ router.post("/upload", async (req, res) => {
         // Lấy ra thuộc tính `buffer` từ body của request gửi lên client
         const { buffer } = req.body
         // Gọi thư viện Cloudinary (phiên bản v2) để upload buffer ảnh lên cloud
+
         const cloud = await cloudinary.v2.uploader.upload(buffer);
 
         res.json({

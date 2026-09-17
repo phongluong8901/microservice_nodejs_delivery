@@ -111,4 +111,5 @@ https://cloud.mongodb.com/v2/6aa90c18451a176500747908#/explorer
 - google oauth2.0
 https://console.cloud.google.com/auth/clients?project=microservice-nodejs-delivery
 - cloudinary
+-> nho bat full quyen o API keys de no dung api upload
 https://console.cloudinary.com/app/c-772f9c0dead98ae314d09274664e33/assets/

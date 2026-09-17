@@ -72,7 +72,8 @@ export const AppProvider = ({ children }: AppProviderProps) => {
                     data.address.town ||
                     data.address.village ||
                     "Your Location",
-                )
+                );
+                setLoadingLocation(false);
 
             } catch (error) {
                 setLocation({
@@ -81,6 +82,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
                     formattedAddress: "Current Location"
                 });
                 setCity("Failed to load");
+                setLoadingLocation(false);
             }
         })
     }, []);

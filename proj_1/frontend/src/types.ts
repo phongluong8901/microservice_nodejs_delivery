@@ -29,4 +29,23 @@ export interface AppContextType {
     city: string
 }
 
+export interface IRestaurant {
+    _id: string;
+    name: string;
+    description?: string;
+    image: string;
+    ownerId: string;
+    phone: number;
+    isVerified: boolean;
+
+    autoLocation: {
+        type: "Point",  // Kiểu hình học là "Point" (Điểm trên bản đồ)
+        coordinates: [number, number]; //[longtitude, latitude]
+        formattedAddress: string;   // Địa chỉ đầy đủ dạng chữ được format sẵn
+    };
+
+    isOpen: boolean;
+    createdAt: Date;
+}
+
 // Khi bạn khai báo const [user, setUser] = useState(...), thì hàm setUser chính là một hàm thuộc kiểu Dispatch.

@@ -52,23 +52,8 @@ export const isAuth = async (
         next();
     } catch (error) {
         res.status(500).json({
-            message: "Please Login - Jwt error",
+            message: error,
         });
         return;
     }
-}
-
-export const isSeller = async (
-    req: AuthenticatedRequest, res: Response, next: NextFunction
-): Promise<void> => {
-    const user = req.user
-
-    if (user && user.role !== "seller") {
-        res.status(401).json({
-            message: "You are not authorized seller",
-        });
-        return;
-    }
-
-    next();
 }
