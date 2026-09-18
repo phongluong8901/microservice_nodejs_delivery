@@ -64,11 +64,14 @@ export const isAuth = async (req: AuthenticatedRequest, res: Response, next: Nex
 }
 
 
+// Middleware kiểm tra quyền người bán (seller)
 export const isSeller = async (
     req: AuthenticatedRequest, res: Response, next: NextFunction
 ): Promise<void> => {
+    // Lấy thông tin user đã được gắn từ middleware isAuth trước đó
     const user = req.user
 
+    // Kiểm tra nếu user tồn tại nhưng vai trò không phải là "seller"
     if (user && user.role !== "seller") {
         res.status(401).json({
             message: "You are not authorized seller",
@@ -76,5 +79,5 @@ export const isSeller = async (
         return;
     }
 
-    next();
+    next(); // Nếu đúng là seller thì cho phép tiếp tục đi vào controller
 }

@@ -13,16 +13,16 @@ export interface IMenuItem extends Document {
 
 const schema = new Schema<IMenuItem>({
     restaurantId: {
-        type: Schema.Types.ObjectId,
-        ref: "Restaurant",
+        type: Schema.Types.ObjectId,    // Kiểu dữ liệu ObjectId chuẩn của MongoDB
+        ref: "Restaurant",      // Tạo liên kết (populate) sang collection "Restaurant"
         required: true,
-        index: true,
+        index: true,    // Đánh chỉ mục (index) giúp tối ưu tốc độ tìm kiếm theo nhà hàng
     },
 
     name: {
         type: String,
         required: true,
-        trim: true
+        trim: true  // Tự động cắt bỏ khoảng trắng thừa ở đầu/cuối chuỗi
     },
 
     description: {
@@ -46,7 +46,7 @@ const schema = new Schema<IMenuItem>({
     },
 },
     {
-        timestamps: true,
+        timestamps: true,   // Tự động tạo và quản lý hai trường createdAt và updatedAt
     }
 );
 

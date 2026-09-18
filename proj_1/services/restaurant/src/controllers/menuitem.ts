@@ -5,14 +5,17 @@ import Restaurant from "../models/Restaurant.js";
 import getBuffer from "../config/datauri.js";
 import MenuItems from "../models/MenuItems.js";
 
+// 2. Hàm addMenuItem (Thêm mới món ăn)
 export const addMenuItem = TryCatch(
     async (req: AuthenticatedRequest, res) => {
+        // Kiểm tra nếu chưa đăng nhập
         if (!req.user) {
             return res.status(401).json({
                 message: "Please login",
             });
         }
 
+        // Tìm nhà hàng dựa vào ID của user đang đăng nhập
         const restaurant = await Restaurant.findOne({ ownerId: req.user._id });
         if (!restaurant) {
             return res.status(404).json({
@@ -20,6 +23,7 @@ export const addMenuItem = TryCatch(
             });
         }
 
+        // Lấy tên, mô tả và giá tiền từ body request
         const { name, description, price } = req.body;
         if (!name || !price) {
             return res.status(400).json({
@@ -27,6 +31,7 @@ export const addMenuItem = TryCatch(
             });
         }
 
+        // Lấy file ảnh được gửi lên thông qua middleware multer
         const file = req.file
         if (!file) {
             return res.status(400).json({
@@ -66,6 +71,7 @@ export const addMenuItem = TryCatch(
     }
 );
 
+// 3. Hàm getAllItems (Lấy danh sách tất cả món ăn theo nhà hàng)
 export const getAllItems = TryCatch(async (req: AuthenticatedRequest, res) => {
     const { id } = req.params;
     if (!id) {
@@ -74,6 +80,7 @@ export const getAllItems = TryCatch(async (req: AuthenticatedRequest, res) => {
         });
     }
 
+    // Tìm tất cả các món ăn trong MongoDB có restaurantId trùng khớp với ID truyền vào
     const items = await MenuItems.find({
         restaurantId: id
     });
@@ -81,7 +88,7 @@ export const getAllItems = TryCatch(async (req: AuthenticatedRequest, res) => {
     res.json(items);
 });
 
-
+// 4. Hàm deleteMenuItem (Xóa món ăn)
 export const deleteMenuItem = TryCatch(async (req: AuthenticatedRequest, res) => {
     if (!req.user) {
         return res.status(401).json({
@@ -89,6 +96,7 @@ export const deleteMenuItem = TryCatch(async (req: AuthenticatedRequest, res) =>
         });
     }
 
+    // Lấy ID của món ăn từ URL params
     const { itemId } = req.params;
     if (!itemId) {
         return res.status(400).json({
@@ -96,6 +104,7 @@ export const deleteMenuItem = TryCatch(async (req: AuthenticatedRequest, res) =>
         });
     }
 
+    // Tìm kiếm món ăn cần xóa theo ID
     const item = await MenuItems.findById(itemId)
 
     if (!item) {
@@ -104,16 +113,20 @@ export const deleteMenuItem = TryCatch(async (req: AuthenticatedRequest, res) =>
         });
     }
 
+    // Kiểm tra xem nhà hàng sở hữu món ăn này có phải thuộc quyền sở hữu của user đang đăng nhập không
     const restaurant = await Restaurant.findOne({
         _id: item.restaurantId,
         ownerId: req.user._id
     });
+
+    // Nếu không phải chủ nhà hàng, chặn lại không cho xóa
     if (!restaurant) {
         return res.status(404).json({
             message: "No Restaurant found"
         });
     }
 
+    // Tiến hành xóa bản ghi món ăn khỏi MongoDB
     await item.deleteOne()
 
     res.json({
@@ -121,6 +134,7 @@ export const deleteMenuItem = TryCatch(async (req: AuthenticatedRequest, res) =>
     });
 });
 
+// 5. Hàm toggleMenuItemAvailability (Bật/tắt trạng thái sẵn sàng của món ăn)
 export const toggleMenuItemAvailability = TryCatch(async (req: AuthenticatedRequest, res) => {
     if (!req.user) {
         return res.status(401).json({
@@ -128,6 +142,7 @@ export const toggleMenuItemAvailability = TryCatch(async (req: AuthenticatedRequ
         });
     }
 
+    // Lấy ID món ăn từ URL params
     const { itemId } = req.params;
     if (!itemId) {
         return res.status(400).json({
@@ -135,6 +150,7 @@ export const toggleMenuItemAvailability = TryCatch(async (req: AuthenticatedRequ
         });
     }
 
+    // Tìm kiếm món ăn cần thao tác theo ID
     const item = await MenuItems.findById(itemId)
 
     if (!item) {
@@ -143,6 +159,7 @@ export const toggleMenuItemAvailability = TryCatch(async (req: AuthenticatedRequ
         });
     }
 
+    // Kiểm tra quyền sở hữu nhà hàng của user hiện tại
     const restaurant = await Restaurant.findOne({
         _id: item.restaurantId,
         ownerId: req.user._id
@@ -153,7 +170,9 @@ export const toggleMenuItemAvailability = TryCatch(async (req: AuthenticatedRequ
         });
     }
 
+    // Đảo ngược trạng thái hiện tại (Đang bán <-> Tạm ngưng)
     item.isAvailable = !item.isAvailable;
+    // Lưu lại thay đổi vào cơ sở dữ liệu
     await item.save();
 
     res.json({
