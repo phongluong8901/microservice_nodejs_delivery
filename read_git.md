@@ -33,3 +33,9 @@ git checkout -b p6_cart
 git add .
 git commit -m "change: first"
 git push origin -u p6_cart
+
+---
+git checkout -b p7_address
+git add .
+git commit -m "change: first"
+git push origin -u p7_address
