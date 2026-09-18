@@ -27,3 +27,9 @@ git checkout -b p5_restaurant_service
 git add .
 git commit -m "change: first"
 git push origin -u p5_restaurant_service
+
+---
+git checkout -b p6_cart
+git add .
+git commit -m "change: first"
+git push origin -u p6_cart
