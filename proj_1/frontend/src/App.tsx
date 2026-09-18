@@ -11,6 +11,7 @@ import { useAppData } from './context/AppContext';
 import Restaurant from './pages/Restaurant';
 import RestaurantPage from './pages/RestaurantPage';
 import Cart from './pages/Cart';
+import AddAddressPage from './pages/Address';
 
 const App = () => {
   const { user } = useAppData()
@@ -35,6 +36,7 @@ const App = () => {
             {/* Chỉ cho phép truy cập vào trang Home khi đã đăng nhập */}
             <Route path='/' element={<Home />} />
             {/* <Route path='/restaurant' element={<Restaurant />} /> */}
+            <Route path='/address' element={<AddAddressPage />} />
             <Route path='/restaurant/:id' element={<RestaurantPage />} />
             <Route path='/cart' element={<Cart />} />
             <Route path='/select-role' element={<SelectRole />} />

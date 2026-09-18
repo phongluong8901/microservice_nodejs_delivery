@@ -1,6 +1,8 @@
 1. source
 - proj zomato clone
 - app deliverfood microservice
+https://drive.google.com/file/d/1jdlmcZFb9wPTVJaM0029JrkLubyeTJz9/view
+
 customer, seller, rider, admin
 
 auth, restuanrant, rider, admin, realtime, utils service
@@ -82,6 +84,9 @@ npm i react-router-dom axios react-hot-toast
 npm i @react-oauth/google
 npm i react-icons
 npm install lucide-react
+
+npm i leaflet @types/leaflet
+npm i react-leaflet
 
 
 3. run
