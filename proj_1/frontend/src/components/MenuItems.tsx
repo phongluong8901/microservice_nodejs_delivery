@@ -7,6 +7,7 @@ import { VscLoading } from "react-icons/vsc";             // Nhập icon loading
 import axios from "axios";                                    // Nhập axios để gửi HTTP request lên server
 import { restaurantService } from "../main";                // Nhập biến chứa URL gốc của Restaurant Service
 import toast from "react-hot-toast";                      // Nhập thư viện hiển thị thông báo toast đẹp mắt
+import { useAppData } from "../context/AppContext";
 
 interface MenuItemsProps {
     items: IMenuItem[];                                       // Mảng danh sách các món ăn cần hiển thị
@@ -64,6 +65,31 @@ const MenuItems = ({
             setLoadingItemId(null);                           // Reset lại state loading về null khi hoàn tất
         }
     };
+
+    const { fetchCart } = useAppData();
+
+    const addToCart = async (restaurantId: string, itemId: string) => {
+        try {
+            setLoadingItemId(itemId);
+
+            const { data } = await axios.post(`${restaurantService}/api/cart/add`, {
+                restaurantId, itemId
+            },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
+                }
+            );
+
+            toast.success(data.message);
+            fetchCart();
+        } catch (error: any) {
+            toast.error(error.response.data.message);
+        } finally {
+            setLoadingItemId(null);
+        }
+    }
 
     return (
         // Khung hiển thị dạng lưới (grid): 1 cột trên màn nhỏ, 2 cột trên tablet, 3-4 cột trên màn hình lớn
@@ -140,7 +166,7 @@ const MenuItems = ({
                                 {!isSeller && (
                                     <button
                                         disabled={!item.isAvailable || isLoading} // Khóa nút nếu món không sẵn sàng hoặc đang loading
-                                        onClick={() => {/* Xử lý thêm vào giỏ hàng ở đây nếu cần */ }}
+                                        onClick={() => addToCart(item.restaurantId, item._id)}
                                         className={`flex items-center justify-center rounded-lg p-2 ${!item.isAvailable || isLoading
                                             ? "cursor-not-allowed text-gray-400" // Kiểu hiển thị khi bị khóa (vô hiệu hóa)
                                             : "text-red-500 hover:bg-red-50"     // Kiểu hiển thị bình thường khi có thể bấm

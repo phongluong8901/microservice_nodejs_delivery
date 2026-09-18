@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { authService } from "../main";
+import { authService, restaurantService } from "../main";
 import axios from "axios";
-import type { AppContextType, LocationData, User } from "../types";
+import type { AppContextType, ICart, LocationData, User } from "../types";
 import { Toaster } from "react-hot-toast";
 
 // Khởi tạo một React Context chứa thông tin toàn cục, giá trị ban đầu là undefined
@@ -17,7 +17,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     // Khai báo các state chính quản lý người dùng, trạng thái xác thực và trạng thái chờ
     const [user, setUser] = useState<User | null>(null);
     const [isAuth, setIsAuth] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     // Khai báo thêm các state phụ trợ cho vị trí địa lý
     const [location, setLocation] = useState<LocationData | null>(null); //location này sẽ có kiểu dữ liệu là LocationData
@@ -33,7 +33,8 @@ export const AppProvider = ({ children }: AppProviderProps) => {
                     Authorization: `Bearer ${token}`,
                 }, // Gửi token này kèm theo trong header Authorization để xác thực yêu cầu tới backend
             });
-            setUser(data.user); // Cập nhật state user với thông tin nhận được từ backend
+            // setUser(data.user); // Cập nhật state user với thông tin nhận được từ backend
+            setUser(data); // Cập nhật state user với thông tin nhận được từ backend
             setIsAuth(true); // Đánh dấu trạng thái đã đăng nhập thành công
         } catch (error) {
             console.log(error)
@@ -42,10 +43,45 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         }
     }
 
+    const [cart, setCart] = useState<ICart[]>([]);
+    const [subTotal, setSubTotal] = useState(0);
+    const [quantity, setQuantity] = useState(0);
+
+    async function fetchCart() {
+        // Block execution if the user is not logged in or not a customer
+        if (!user || user.role !== "customer") {
+            console.log("Blocked due to user status:", user);
+            return;
+        }
+
+        try {
+            // Fetch cart data from the backend API
+            const { data } = await axios.get(`${restaurantService}/api/cart/all`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                }
+            });
+
+            console.log("API response from cart/all:", data);
+
+            // Update state with fetched values or default fallbacks
+            setCart(data.cart || []);
+            setSubTotal(data.subtotal || 0);
+            setQuantity(Number(data.cartLength) || 0); // Cast to number to ensure correct rendering
+        } catch (error) {
+            console.log("Error fetching cart:", error);
+        }
+    }
     // Sử dụng useEffect chạy 1 lần duy nhất khi ứng dụng khởi chạy (mount) để kiểm tra đăng nhập tự động
     useEffect(() => {
         fetchUser();
     }, []);
+
+    useEffect(() => {
+        if (user && user.role === "customer") {
+            fetchCart();
+        }
+    }, [user]);
 
     useEffect(() => {
         if (!navigator.geolocation)
@@ -96,7 +132,8 @@ export const AppProvider = ({ children }: AppProviderProps) => {
             setIsAuth,
             setLoading,
             setUser,
-            user, location, loadingLocation, city
+            user, location, loadingLocation, city,
+            cart, fetchCart, subTotal, quantity,
         }}>
             {children}
             <Toaster />
