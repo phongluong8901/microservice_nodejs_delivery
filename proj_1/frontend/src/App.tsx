@@ -13,6 +13,7 @@ import RestaurantPage from './pages/RestaurantPage';
 import Cart from './pages/Cart';
 import AddAddressPage from './pages/Address';
 import Checkout from './pages/Checkout';
+import PaymentSuccess from './pages/PaymentSuccess';
 
 const App = () => {
   const { user } = useAppData()
@@ -37,6 +38,7 @@ const App = () => {
             {/* Chỉ cho phép truy cập vào trang Home khi đã đăng nhập */}
             <Route path='/' element={<Home />} />
             {/* <Route path='/restaurant' element={<Restaurant />} /> */}
+            <Route path='/paymentsuccess/:paymentId' element={<PaymentSuccess />} />
             <Route path='/address' element={<AddAddressPage />} />
             <Route path='/checkout' element={<Checkout />} />
             <Route path='/restaurant/:id' element={<RestaurantPage />} />

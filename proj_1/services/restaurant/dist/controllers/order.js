@@ -10,7 +10,8 @@ export const createOrder = TryCatch(async (req, res) => {
             message: "Unauthorized", // Trả về lỗi 401 Không có quyền truy cập
         });
     }
-    const { paymentMethod, addressId, distance } = req.body; // Lấy phương thức thanh toán, ID địa chỉ và khoảng cách từ body request
+    const { paymentMethod, addressId } = req.body; // Lấy phương thức thanh toán, ID địa chỉ và khoảng cách từ body request
+    // const distance = 0;
     if (!addressId) { // Kiểm tra nếu thiếu addressId
         return res.status(400).json({
             message: "Adress is required", // Trả về lỗi thiếu địa chỉ (⚠️ Lưu ý chính tả: `Adress` -> `Address`)
@@ -24,6 +25,16 @@ export const createOrder = TryCatch(async (req, res) => {
             message: "Addres Not Found", // Trả về lỗi không tìm thấy địa chỉ
         });
     }
+    const getDistanceKm = (lat1, lon1, lat2, lon2) => {
+        const R = 6371;
+        const dLat = ((lat2 - lat1) * Math.PI) / 180;
+        const dLon = ((lon2 - lon1) * Math.PI) / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return +(R * c).toFixed(2);
+    };
     const cartItems = await Cart.find({ userId: user._id }) // Lấy toàn bộ sản phẩm trong giỏ hàng của user
         .populate("itemId") // Populate (kết nối) thông tin chi tiết của món ăn
         .populate("restaurantId"); // Populate thông tin nhà hàng
@@ -50,6 +61,7 @@ export const createOrder = TryCatch(async (req, res) => {
             message: "Sorry this restaurant is closed for now" // Lỗi nhà hàng đã đóng cửa
         });
     }
+    const distance = getDistanceKm(address.location.coordinates[1], address.location.coordinates[0], restaurant.autoLocation.coordinates[1], restaurant.autoLocation.coordinates[0]);
     let subtotal = 0; // Biến tính tổng tiền hàng tạm tính
     const orderItems = cartItems.map((cart) => {
         const item = cart.itemId;
