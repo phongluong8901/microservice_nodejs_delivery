@@ -37,7 +37,13 @@ npm i amqplib @types/amqplib
 npm init -y
 --- cd admin
 npm init -y
+
 --- realtime
+npm init -y
+npm i cors socket.io express dotenv typescript
+npm i -D @types/express @types/dotenv @types/cors @types/socket.io 
+npm i -D concurrently typescript
+npm i jsonwebtoken @types/jsonwebtoken
 
 --- utils
 npm init -y
@@ -96,6 +102,7 @@ npm i leaflet @types/leaflet
 npm i react-leaflet
 
 npm i @stripe/stripe-js
+npm i socket.io-client
 
 
 3. run
