@@ -1,0 +1,82 @@
+import mongoose, { Schema } from "mongoose";
+const OrderSchema = new Schema({
+    userId: {
+        type: String,
+        required: true,
+    },
+    restaurantId: {
+        type: String,
+        required: true,
+    },
+    restaurantName: {
+        type: String,
+        required: true
+    },
+    riderId: {
+        type: String,
+        default: null
+    },
+    riderPhone: {
+        type: Number,
+        default: null
+    },
+    riderName: {
+        type: String,
+        default: null
+    },
+    distance: {
+        type: Number,
+        required: true
+    },
+    riderAmount: {
+        type: Number,
+        required: true
+    },
+    items: [
+        {
+            itemId: String,
+            name: String,
+            price: Number,
+            quantity: Number,
+        }
+    ],
+    subtotal: Number,
+    deliveryFee: Number,
+    platformFee: Number,
+    totalAmount: Number,
+    addressId: {
+        type: String,
+        required: true
+    },
+    deliveryAddress: {
+        fromattedAddress: {
+            type: String,
+            required: true,
+        },
+        mobile: { type: Number, required: true },
+        latitude: Number,
+        longitude: Number,
+    },
+    status: {
+        type: String,
+        enum: ["placed", "accepted", "preparing", "redy_for_rider", "rider_assigned", "picked_up", "delivered", "cancelled"],
+        default: "placed"
+    },
+    paymentMethod: {
+        type: String,
+        enum: ["razorpay", "stripe"],
+        required: true
+    },
+    paymentStatus: {
+        type: String,
+        enum: ["pending", "paid", "failed"],
+        default: "pending"
+    },
+    expiresAt: {
+        type: Date,
+        index: { expireAfterSeconds: 0 }
+    },
+}, {
+    timestamps: true,
+});
+export default mongoose.model("Order", OrderSchema);

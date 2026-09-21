@@ -19,6 +19,26 @@ googleapis: Thư viện chính thức của Google, cung cấp các công cụ �
 
 # --- stack
 
+1. Razorpay và Stripe
+Razorpay và Stripe đều là các cổng thanh toán trực tuyến (payment gateway) hàng đầu thế giới, đóng vai trò là cầu nối để doanh nghiệp/ứng dụng thu tiền từ khách hàng qua thẻ ngân hàng, ví điện tử hoặc các hình thức thanh toán số khác.
+
+Razorpay
+Thị trường chính: Tập trung rất mạnh ở Ấn Độ và khu vực Nam Á.
+
+Đặc điểm: Hỗ trợ cực kỳ tốt các phương thức thanh toán nội địa tại Ấn Độ như UPI, thẻ nội địa, ví điện tử (Paytm, PhonePe) và Net Banking, bên cạnh thẻ quốc tế (Visa, Mastercard).
+
+Ứng dụng trong code của bạn: Do ứng dụng của bạn tích hợp cổng này, nó thường phục vụ cho khách hàng thanh toán các đơn hàng giao đồ ăn (food delivery) tại thị trường Ấn Độ hoặc các quốc gia mà Razorpay hỗ trợ.
+
+Stripe
+Thị trường chính: Hoạt động trên phạm vi toàn cầu (hơn 40+ quốc gia lớn như Mỹ, Châu Âu, Singapore, v.v.).
+
+Đặc điểm: Được coi là tiêu chuẩn vàng trong ngành thanh toán trực tuyến cho các nhà phát triển phần mềm nhờ tài liệu API cực tốt, bảo mật cao, hỗ trợ thanh toán quốc tế mượt mà bằng thẻ tín dụng/ghi nợ (Visa, Mastercard, AMEX) và các ví toàn cầu như Apple Pay, Google Pay.
+
+Ứng dụng trong code của bạn: Dùng để thu tiền của khách hàng quốc tế hoặc khách hàng sử dụng các loại thẻ thanh toán quốc tế phổ biến.
+
+
+2. RabittMQ
+
 # --- more
 
 The application supports multiple roles:
@@ -60,6 +80,10 @@ This project is perfect for developers who want to learn:
 • Docker & production deployment
 • How apps like Zomato work internally
 
-# ---
+# --- payment
+pay with (razorpay | stripe) -> order create (status: unpaid 10m -> deleted)
+
+
+rabitMQ -> payment success -> restaurant -> order update status (paid) -> realtime service (restaurant dashboard) order
 
 

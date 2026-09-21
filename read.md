@@ -30,7 +30,7 @@ npm i -D @types/express  @types/jsonwebtoken @types/dotenv @types/multer @types/
 npm i -D concurrently typescript
 
 tsc
-
+npm i amqplib @types/amqplib
 
 
 --- cd rider
@@ -45,6 +45,10 @@ npm i express dotenv cloudinary
 npm i -D @types/express @types/dotenv concurrently typescript
 npm i cors
 npm i -D @types/cors
+
+npm i razorpay
+npm i amqplib @types/amqplib
+npm i axios @types/axios
 
 
 # --- FE
@@ -109,6 +113,10 @@ npm run dev
 
 5. docker
 
+- chay RabittMQ
+cd utils
+docker compose up -d
+
 6. deploy
 
 7. link
@@ -119,3 +127,7 @@ https://console.cloud.google.com/auth/clients?project=microservice-nodejs-delive
 - cloudinary
 -> nho bat full quyen o API keys de no dung api upload
 https://console.cloudinary.com/app/c-772f9c0dead98ae314d09274664e33/assets/
+- razorpay
+https://razorpay.com/
+- rabbitmq
+http://localhost:15672/
