@@ -50,6 +50,9 @@ npm i razorpay
 npm i amqplib @types/amqplib
 npm i axios @types/axios
 
+npm i stripe 
+npm i @stripe/stripe-js
+
 
 # --- FE
 cd frontend
@@ -92,6 +95,8 @@ npm install lucide-react
 npm i leaflet @types/leaflet
 npm i react-leaflet
 
+npm i @stripe/stripe-js
+
 
 3. run
 cd proj_1
@@ -131,3 +136,5 @@ https://console.cloudinary.com/app/c-772f9c0dead98ae314d09274664e33/assets/
 https://razorpay.com/
 - rabbitmq
 http://localhost:15672/
+-stripe
+https://dashboard.stripe.com/login

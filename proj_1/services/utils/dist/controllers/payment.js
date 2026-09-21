@@ -39,3 +39,77 @@ export const verifyRazorPayPayment = async (req, res) => {
         message: "payment verified successfully", // Thông báo xác thực thanh toán thành công
     });
 };
+import dotenv from 'dotenv'; // Nhập thư viện dotenv để đọc các biến môi trường từ file .env
+dotenv.config(); // Kích hoạt cấu hình dotenv để nạp các biến vào process.env
+import Stripe from 'stripe'; // Nhập thư viện Stripe để xử lý thanh toán
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // Khởi tạo đối tượng Stripe bằng khóa bí mật lấy từ biến môi trường
+export const payWithStripe = async (req, res) => {
+    try {
+        const { orderId } = req.body; // Lấy `orderId` được truyền lên từ phía client (request body)
+        const { data } = await axios.get(`${process.env.RESTAURANT_SERVICE}/api/order/payment/${orderId}`, {
+            headers: {
+                "x-internal-key": process.env.INTERNAL_SERVICE_KEY // Gửi kèm khóa bảo mật nội bộ để xác thực quyền gọi giữa các microservices
+            }
+        });
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'], // Chỉ định phương thức thanh toán là thẻ ngân hàng (credit/debit card)
+            mode: "payment", // Đặt chế độ thanh toán một lần (one-time payment)
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd', // Đơn vị tiền tệ là Đô la Mỹ (USD)
+                        product_data: {
+                            name: "Tomato food order", // Tên hiển thị của sản phẩm trên trang thanh toán Stripe
+                        },
+                        unit_amount: data.amount * 100, // Số tiền thanh toán (Stripe tính bằng đơn vị nhỏ nhất là Cent, nên nhân 100)
+                    },
+                    quantity: 1, // Số lượng sản phẩm là 1
+                }
+            ],
+            metadata: {
+                orderId, // Lưu kèm orderId vào metadata của Stripe để dễ truy xuất lại sau khi thanh toán xong
+            },
+            success_url: `${process.env.FRONTEND_URL}/ordersuccess?session_id={CHECKOUT_SESSION_ID}`, // Đường dẫn điều hướng về phía Frontend khi thanh toán thành công
+            cancel_url: `${process.env.FRONTEND_URL}/checkout`, // Đường dẫn điều hướng về trang giỏ hàng/checkout nếu người dùng bấm hủy
+        });
+        res.json({
+            url: session.url, // Trả về URL của trang thanh toán Stripe để client tiến hành redirect
+        });
+    }
+    catch (error) {
+        console.log("LỖI STRIPE CHI TIẾT:", error.response?.data || error.message || error); // In lỗi chi tiết ra terminal cổng 5002 để debug khi gặp sự cố
+        res.status(500).json({
+            message: "Internal server error" // Trả về thông báo lỗi chung cho client khi có ngoại lệ xảy ra
+        });
+    }
+};
+export const verifyStripe = async (req, res) => {
+    const { sessionId } = req.body; // Lấy `sessionId` do client gửi lên sau khi thanh toán xong
+    try {
+        const session = await stripe.checkout.sessions.retrieve(sessionId); // Truy vấn thông tin chi tiết phiên thanh toán từ Stripe dựa vào sessionId
+        if (!session) { // Kiểm tra nếu không tìm thấy phiên thanh toán
+            return res.status(400).json({
+                message: "Payment verification failed", // Báo lỗi xác thực thất bại
+            });
+        }
+        const orderId = session.metadata?.orderId; // Lấy lại `orderId` đã được đính kèm trong metadata từ lúc tạo session
+        if (!orderId) { // Kiểm tra nếu không tìm thấy orderId trong metadata
+            return res.status(400).json({
+                message: "orderid not found in stripe session" // Báo lỗi không tìm thấy mã đơn hàng
+            });
+        }
+        await publishPaymentSuccess({
+            orderId,
+            paymentId: sessionId,
+            provider: "stripe",
+        });
+        res.json({
+            message: "payment verified successfully", // Trả về thông báo xác thực thành công cho client
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            message: "Stripe payment failed" // Trả về lỗi server nếu quá trình xử lý xác thực gặp trục trặc
+        });
+    }
+};

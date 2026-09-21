@@ -18,7 +18,7 @@ export const createOrder = TryCatch(async (req, res) => {
         });
     }
     const address = await Address.findOne({
-        userid: user._id,
+        userId: user._id,
     });
     if (!address) { // Nếu không tìm thấy địa chỉ
         return res.status(404).json({

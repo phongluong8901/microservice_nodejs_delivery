@@ -26,7 +26,7 @@ export const createOrder = TryCatch(async (req: AuthenticatedRequest, res) => { 
 
 
     const address = await Address.findOne({ // Tìm địa chỉ trong cơ sở dữ liệu dựa trên ID địa chỉ và user ID (⚠️ Lưu ý: đang query `userid` thay vì `_id: addressId`, có thể cần sửa thành `_id: addressId, userid: user._id`)
-        userid: user._id,
+        userId: user._id,
     });
 
     if (!address) { // Nếu không tìm thấy địa chỉ
