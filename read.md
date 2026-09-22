@@ -35,6 +35,16 @@ npm i amqplib @types/amqplib
 
 --- cd rider
 npm init -y
+npm i express dotenv mongoose axios cors jsonwebtoken
+npm i -D @types/express @types/dotenv @types/cors @types/jsonwebtoken @types/mongoose
+npm i -D concurrently typescript
+
+npm i multer datauri
+npm i @types/multer
+
+npm install -D tsx
+
+
 --- cd admin
 npm init -y
 
