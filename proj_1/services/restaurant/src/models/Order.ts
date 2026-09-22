@@ -32,7 +32,7 @@ export interface IOrder extends Document {
 
     // Trạng thái hiện tại của đơn hàng
     status: | "placed" | "accepted" | "preparing" |
-    "redy_for_rider" | "rider_assigned" | "picked_up" | "delivered" | "cancelled";
+    "ready_for_rider" | "rider_assigned" | "picked_up" | "delivered" | "cancelled";
 
     paymentMethod: "razorpay" | "stripe"; // Phương thức thanh toán
     paymentStatus: "pending" | "paid" | "failed"; // Trạng thái thanh toán
@@ -105,7 +105,7 @@ const OrderSchema = new Schema<IOrder>({
 
     status: {
         type: String,
-        enum: ["placed", "accepted", "preparing", "redy_for_rider", "rider_assigned", "picked_up", "delivered", "cancelled"],
+        enum: ["placed", "accepted", "preparing", "ready_for_rider", "rider_assigned", "picked_up", "delivered", "cancelled"],
         default: "placed"
     },
 

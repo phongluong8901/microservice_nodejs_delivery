@@ -44,10 +44,10 @@ export const initSocket = (server: http.Server) => { // Định nghĩa hàm kh�
 
         const userId = user._id; // Lấy ID của người dùng
 
-        socket.join(`user: ${userId}`); // Cho socket tham gia vào một room riêng biệt của chính user đó (để gửi thông báo cá nhân)
+        socket.join(`user:${userId}`); // Cho socket tham gia vào một room riêng biệt của chính user đó (để gửi thông báo cá nhân)
 
         if (user.restaurantId) { // Kiểm tra nếu user thuộc về một nhà hàng nào đó
-            socket.join(`retaurant: ${user.restaurantId}`); // Cho socket tham gia thêm vào room của nhà hàng đó (để nhận đơn hàng chung của quán)
+            socket.join(`restaurant:${user.restaurantId}`); // Cho socket tham gia thêm vào room của nhà hàng đó (để nhận đơn hàng chung của quán)
         }
 
         console.log(`User connected: ${userId}`); // Thông báo ra console khi có user kết nối thành công

@@ -1,3 +1,4 @@
+import axios from "axios";
 import { AuthenticatedRequest } from "../middlewares/isAuth.js"; // Nhập kiểu dữ liệu AuthenticatedRequest mở rộng từ Request của Express để chứa thông tin người dùng đã xác thực
 import TryCatch from "../middlewares/trycatch.js"; // Nhập middleware bọc lỗi tự động (try-catch wrapper) để bắt lỗi bất đồng bộ
 import Address from "../models/Address.js"; // Nhập Model Address để truy vấn địa chỉ giao hàng
@@ -183,4 +184,169 @@ export const fetchOrderForPayment = TryCatch(async (req: AuthenticatedRequest, r
         amount: order.totalAmount,
         currency: "INR",
     })
+});
+
+// Xem đơn hàng của nhà hàng
+export const fetchRestaurantOrders = TryCatch(async (req: AuthenticatedRequest, res) => {
+    const user = req.user;
+    const { restaurantId } = req.params;    // Lấy ID nhà hàng từ tham số trên đường dẫn URL.
+
+    if (!user) {
+        return res.status(401).json({
+            message: "Unauthorized",
+        })
+    }
+
+    if (!restaurantId) {
+        return res.status(400).json({
+            message: "Restaurant ID is required",
+        })
+    }
+
+    // Lấy giới hạn số lượng bản ghi nếu có truyền qua query param, mặc định là 0 (không giới hạn).
+    const limit = req.query.limit ? Number(req.query.limit) : 0;
+
+    // Tìm các đơn hàng thuộc nhà hàng này và đã được thanh toán thành công.
+    const orders = await Order.find({
+        restaurantId, paymentStatus: "paid"
+    })
+        .sort({ createdAt: -1 }) // Sắp xếp theo thời gian tạo giảm dần (mới nhất trước).
+        .limit(limit); // Giới hạn số lượng kết quả trả về.
+
+    return res.json({
+        success: true,
+        count: orders.length,
+        orders,
+    });
+});
+
+
+// Định nghĩa danh sách các trạng thái hợp lệ
+const ALLOWED_STATUS = ["accepted", "preparing", "ready_for_rider"] as const;
+
+//Cập nhật trạng thái đơn hàng
+export const updateOrderStatus = TryCatch(async (req: AuthenticatedRequest, res) => {
+    const user = req.user;
+
+    const { orderId } = req.params;
+    const { status } = req.body;    // Lấy trạng thái mới từ body request.
+
+    if (!user) {
+        return res.status(401).json({
+            message: "Unauthorized",
+        })
+    }
+
+    // Kiểm tra xem trạng thái mới có nằm trong danh sách cho phép không.
+    if (!ALLOWED_STATUS.includes(status)) {
+        return res.status(400).json({
+            message: "Invalid order status"
+        });
+    }
+
+    const order = await Order.findById(orderId)
+
+    if (!order) {
+        return res.status(404).json({
+            message: "Order not found",
+        });
+    }
+
+    if (order.paymentStatus !== "paid") {
+        return res.status(404).json({
+            message: "Order not completed",
+        });
+    }
+
+    const restaurant = await Restaurant.findById(order.restaurantId)
+
+    if (!restaurant) {
+        return res.status(404).json({
+            message: "Restaurant not found",
+        })
+    }
+
+    // Kiểm tra xem người dùng hiện tại có phải là chủ sở hữu của nhà hàng
+    if (restaurant.ownerId !== user._id.toString()) {
+        return res.status(404).json({
+            message: "You are not allowed to update this order",
+        });
+    }
+
+    // Gán trạng thái mới cho đơn hàng
+    order.status = status;
+
+    await order.save();
+
+    // Gửi HTTP POST request sang Realtime Service để phát sự kiện WebSocket thông báo cho khách hàng
+    await axios.post(`${process.env.REALTIME_SERVICE}/api/v1/internal/emit`, {
+        event: "order:update",
+        room: `user:${order.userId}`,
+        payload: {
+            orderId: order._id,
+            status: order.status,
+        },
+    },
+        {
+            headers: {
+                "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
+            }
+        }
+    );
+
+    // now assign riders
+    res.json({
+        message: "order status updated successfully",
+        order,
+    })
+});
+
+// lấy đơn hàng cá nhân
+export const getMyOrders = TryCatch(async (req: AuthenticatedRequest, res) => {
+    const user = req.user;
+
+    // Kiểm tra nếu chưa đăng nhập hoặc không có _id
+    if (!user || !user._id) {
+        return res.status(401).json({
+            message: "Unauthorized",
+        })
+    }
+
+    const userId = user._id.toString();
+
+    // Lấy tất cả các đơn hàng đã thanh toán của cá nhân user.
+    const orders = await Order.find({
+        userId: userId,
+        paymentStatus: "paid",
+    }).sort({ createdAt: -1 }); // Sắp xếp theo thứ tự mới nhất.
+
+    res.json({ orders });
+});
+
+// Xem chi tiết một đơn hàng
+export const fetchSingleOrder = TryCatch(async (req: AuthenticatedRequest, res) => {
+
+    if (!req.user) {
+        return res.status(401).json({
+            message: "Unauthorized",
+        })
+    }
+
+    // Tìm đơn hàng theo ID trên URL params.
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+        return res.status(404).json({
+            message: "Order not found",
+        });
+    }
+
+    // Kiểm tra bảo mật: chỉ cho phép chính chủ nhân của đơn hàng mới được quyền xem chi tiết.
+    if (order.userId !== req.user._id.toString()) {
+        return res.status(401).json({
+            message: "You are not allowed to view this order",
+        });
+    }
+
+    res.json({ order });
 })

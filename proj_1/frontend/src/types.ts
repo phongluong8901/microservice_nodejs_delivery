@@ -74,4 +74,47 @@ export interface ICart {
     updatedAt: Date;
 }
 
+export interface IOrder {
+    _id: string;
+    userId: string;
+    restaurantId: string;
+    restaurantName: string;
+    riderId?: string | null;    // ID của shipper
+    riderPhone: number | null;  // Số điện thoại của shipper
+    riderName: string | null;
+    distance: number;
+    riderAmount: number;
+
+    items: {
+        itemId: string;
+        name: string;
+        price: number;
+        quantity: number;   // Số lượng đặt
+    }[];
+
+    subtotal: number;   // Tổng tiền các món ăn (chưa tính phí)
+    deliveryFee: number; // Phí vận chuyển
+    platformFee: number; // Phí nền tảng
+    totalAmount: number; // Tổng số tiền thanh toán cuối cùng
+
+    addressId: string;  // ID địa chỉ giao hàng của người dùng
+    deliveryAddress: {  // Chi tiết thông tin địa chỉ giao hàng
+        formattedAddress: string;   // Địa chỉ đầy đủ dạng chữ
+        mobile: number;             // Số điện thoại người nhận
+        latitude: number;           // Kinh độ
+        longitude: number;          // Vĩ độ
+    };
+
+    status: | "placed" | "accepted" | "preparing" |
+    "ready_for_rider" | "rider_assigned" | "picked_up" | "delivered" | "cancelled";
+
+    paymentMethod: "razorpay" | "stripe"; // Phương thức thanh toán
+    paymentStatus: "pending" | "paid" | "failed"; // Trạng thái thanh toán
+
+    expiresAt: Date;    // Thời gian hết hạn của đơn hàng
+
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 // Khi bạn khai báo const [user, setUser] = useState(...), thì hàm setUser chính là một hàm thuộc kiểu Dispatch.

@@ -1,3 +1,4 @@
+import axios from "axios";
 import Order from "../models/Order.js"; // Nhập Mongoose Model Order để thao tác với bảng đơn hàng trong CSDL
 import { getChanel } from "./rabbitmq.js"; // Nhập hàm getChanel để lấy kênh kết nối RabbitMQ hiện tại
 export const startPaymentConsumer = async () => {
@@ -32,6 +33,17 @@ export const startPaymentConsumer = async () => {
             }
             console.log("Order Placed:", order._id); // In log thông báo đơn hàng đã được đặt và thanh toán thành công
             //socket work // Chỗ dành để viết code thông báo realtime qua WebSocket cho nhà hàng/user (chưa triển khai)
+            await axios.post(`${process.env.REALTIME_SERVICE}/api/v1/internal/emit`, {
+                event: "order:new",
+                room: `restaurant:${order.restaurantId}`,
+                payload: {
+                    orderId: order._id,
+                },
+            }, {
+                headers: {
+                    "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
+                }
+            });
             channel.ack(msg); // Gửi xác nhận thành công (ack) cho RabbitMQ để xóa message khỏi hàng đợi
         }
         catch (error) {

@@ -9,7 +9,7 @@ export const publishPaymentSuccess = async (payload: { // Khai báo hàm bất �
     const channel = getChanel() // Gọi hàm để lấy channel RabbitMQ đã được khởi tạo sẵn
 
     channel.sendToQueue(process.env.PAYMENT_QUEUE!, Buffer.from(JSON.stringify({ // Chuyển đổi object chứa message thành Buffer để gửi vào hàng đợi
-        type: "PAYMENT SUCCESS", // Gán nhãn loại sự kiện là thanh toán thành công
+        type: "PAYMENT_SUCCESS", // Gán nhãn loại sự kiện là thanh toán thành công
         data: payload, // Truyền dữ liệu chi tiết vào message
     })
     ),

@@ -6,6 +6,7 @@ import Addrestaurant from "../components/Addrestaurant";
 import RestaurantProfile from "../components/RestaurantProfile";
 import MenuItems from "../components/MenuItems";
 import AddMenuItem from "../components/AddMenuItem";
+import RestaurantOrders from "../components/RestaurantOrders";
 
 type SellerTab = "menu" | "add-item" | "sales"
 
@@ -78,6 +79,8 @@ const Restaurant = () => {
             onUpdate={setRestaurant}
             isSeller={true}
         />
+
+        <RestaurantOrders restaurantId={restaurant._id} />
 
         {/* Khung chứa các nút chuyển tab chức năng */}
         <div className="roundex-xl bg white shadow-sm">
