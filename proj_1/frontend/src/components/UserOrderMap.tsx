@@ -1,12 +1,10 @@
-import type { IOrder } from "../types";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine'; // Đã mở comment dòng này để kích hoạt routing machine
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import { realtimeService } from "../main";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect } from 'react';
 
 // Khai báo mở rộng module cho leaflet-routing-machine trong TypeScript
 declare module "leaflet" {
@@ -64,66 +62,23 @@ const Routing = ({ from, to }: { from: [number, number]; to: [number, number] })
     return null;
 };
 
-
-interface Props {
-    order: IOrder | null;
+interface props {
+    riderLocation: [number, number] | null;
+    deliveryLocation: [number, number];
 }
 
-
-const RiderOrderMap = ({ order }: Props) => {
-    const [riderLocation, setRiderLocation] = useState<[number, number] | null>(null);
-
-    // Kiểm tra nếu chưa có thông tin đơn hàng hoặc thiếu tọa độ giao hàng thì không render
-    if (!order || order?.deliveryAddress.latitude == null || order?.deliveryAddress.longitude == null) {
-        return null;
-    }
-
-    const deliveryLocation: [number, number] = [order.deliveryAddress.latitude, order.deliveryAddress.longitude];
-
-    useEffect(() => {
-        const fetchLocation = () => {
-            navigator.geolocation.getCurrentPosition((pos) => {
-                const latitude = pos.coords.latitude;
-                const longitude = pos.coords.longitude;
-
-                setRiderLocation([latitude, longitude]);
-
-                // Gửi vị trí mới của tài xế lên Realtime Service
-                axios.post(`${realtimeService}/api/v1/internal/emit`, {
-                    event: "rider:location",
-                    room: `user:${order.userId}`,
-                    payload: { latitude, longitude },
-                }, {
-                    headers: {
-                        "x-internal-key": import.meta.env.VITE_INTERNAL_SERVICE_KEY,
-                    },
-                }).catch(err => console.log("Emit Location Error: ", err));
-
-            }, (err) => console.log("Location Error: ", err),
-                {
-                    enableHighAccuracy: true,
-                    maximumAge: 5000,
-                    timeout: 10000,
-                });
-        };
-
-        fetchLocation();
-        const interval = setInterval(fetchLocation, 10000);
-
-        return () => clearInterval(interval);
-    }, [order.userId]);
-
-    // Nếu chưa lấy được vị trí GPS của tài xế thì hiển thị tạm thông báo đang tải
+const UserOrderMap = ({ riderLocation, deliveryLocation }: props) => {
+    // Thêm điều kiện kiểm tra này để TypeScript hiểu rằng riderLocation chắc chắn không phải null ở bên dưới
     if (!riderLocation) {
         return (
             <div className="rounded-xl bg-white shadow-sm p-4 text-center text-gray-500">
-                Đang lấy vị trí của tài xế...
+                Loading the Rider...
             </div>
         );
     }
 
     return (
-        <div className="rounded-xl bg-white shadow-sm p-3"> {/* Sửa lỗi chính tả rouded-xl thành rounded-xl */}
+        <div className='rounded-xl bg-white shadow-sm p-3'>
             <MapContainer center={riderLocation} zoom={14}
                 className="h-[350px] w-full rounded-lg"> {/* Sửa lại cú pháp class chiều cao cho chuẩn Tailwind */}
                 <TileLayer attribution="&copy; OpenStreetMap"
@@ -131,7 +86,7 @@ const RiderOrderMap = ({ order }: Props) => {
 
                 <Marker position={riderLocation} icon={riderIcon}>
                     <Popup>
-                        You (Rider) 🛵
+                        Rider 🛵
                     </Popup>
                 </Marker>
 
@@ -145,6 +100,6 @@ const RiderOrderMap = ({ order }: Props) => {
             </MapContainer>
         </div>
     );
-};
+}
 
-export default RiderOrderMap;
+export default UserOrderMap;

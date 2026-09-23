@@ -116,6 +116,9 @@ npm i react-leaflet
 npm i @stripe/stripe-js
 npm i socket.io-client
 
+npm i leaflet-routing-machine
+npm install --save-dev @types/leaflet-routing-machine
+
 
 3. run
 cd proj_1
