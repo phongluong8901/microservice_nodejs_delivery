@@ -69,3 +69,9 @@ git checkout -b p11_realtime_location_tracking_User_Rider
 git add .
 git commit -m "change: first"
 git push origin -u p11_realtime_location_tracking_User_Rider
+
+---
+git checkout -b p12_Protect_routes_admin_service
+git add .
+git commit -m "change: first"
+git push origin -u p12_Protect_routes_admin_service
