@@ -49,6 +49,10 @@ npm i amqplib @types/amqplib
 
 --- cd admin
 npm init -y
+npm i express dotenv mongodb cors jsonwebtoken
+npm i -D @types/express @types/dotenv @types/cors @types/jsonwebtoken
+npm i -D concurrently typescript
+npm i -D tsx
 
 --- realtime
 npm init -y
