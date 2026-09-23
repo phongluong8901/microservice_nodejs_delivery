@@ -278,6 +278,7 @@ export const fetchSingleOrder = TryCatch(async (req, res) => {
     }
     res.json({ order });
 });
+// 1. Controller gán tài xế vào đơn hàng
 export const assignRiderToOrder = TryCatch(async (req, res) => {
     if (req.headers["x-internal-key"] !== process.env.INTERNAL_SERVICE_KEY) { // Kiểm tra khóa bảo mật nội bộ để đảm bảo request xuất phát từ service nội bộ tin cậy
         return res.status(403).json({
@@ -285,33 +286,29 @@ export const assignRiderToOrder = TryCatch(async (req, res) => {
         });
     }
     const { orderId, riderId, riderName, riderPhone } = req.body;
-    // Check if this rider already has an active order
+    // Kiểm tra xem tài xế này có đang thực hiện đơn hàng nào khác chưa (trừ đơn đã giao hoặc đã hủy)
     const orderAvailable = await Order.findOne({ riderId, status: { $nin: ["delivered", "cancelled"] } });
     if (orderAvailable) {
         return res.status(400).json({
-            message: "You already have an active order"
+            message: "You already have an active order" // Báo lỗi nếu tài xế đang bận giao đơn khác
         });
     }
     // --- DEBUG: log chính xác giá trị riderId trong DB ---
     const orderForDebug = await Order.findById(orderId);
-    console.log(`[DEBUG assignRider] orderId=${orderId}`);
-    console.log(`[DEBUG assignRider] order found: ${!!orderForDebug}`);
-    console.log(`[DEBUG assignRider] order.riderId value:`, JSON.stringify(orderForDebug?.riderId));
-    console.log(`[DEBUG assignRider] order.riderId type:`, typeof orderForDebug?.riderId);
-    console.log(`[DEBUG assignRider] riderId to assign:`, riderId);
-    // Atomic check + update: only update if riderId is still null (not yet taken)
+    // Kiểm tra và cập nhật nguyên tử (atomic check + update): Chỉ cập nhật nếu riderId hiện tại vẫn đang là null (chưa bị tài xế khác nhận mất)
     const orderUpdated = await Order.findOneAndUpdate({ _id: orderId, riderId: null }, {
         riderId,
         riderName,
         riderPhone,
-        status: "rider_assigned"
+        status: "rider_assigned" // Cập nhật trạng thái đơn hàng thành đã gán tài xế
     }, { new: true });
-    // If orderUpdated is null, another rider took the order first (race condition)
+    // Nếu orderUpdated là null, nghĩa là có tài xế khác đã nhận đơn này trước đó (xung đột luồng - race condition)
     if (!orderUpdated) {
         return res.status(400).json({
             message: "Order already taken",
         });
     }
+    // Bắn WebSocket thông báo cho khách hàng qua Realtime Service
     await axios.post(`${process.env.REALTIME_SERVICE}/api/v1/internal/emit`, {
         event: "order:rider_assigned",
         room: `user:${orderUpdated.userId}`,
@@ -321,6 +318,7 @@ export const assignRiderToOrder = TryCatch(async (req, res) => {
             "x-internal-key": process.env.INTERNAL_SERVICE_KEY,
         }
     });
+    // Bắn WebSocket thông báo cho nhà hàng qua Realtime Service
     await axios.post(`${process.env.REALTIME_SERVICE}/api/v1/internal/emit`, {
         event: "order:rider_assigned",
         room: `restaurant:${orderUpdated.restaurantId}`,
@@ -336,6 +334,7 @@ export const assignRiderToOrder = TryCatch(async (req, res) => {
         order: orderUpdated,
     });
 });
+// 2. Controller lấy thông tin đơn hàng hiện tại của tài xế
 export const getCurrentOrderForRider = TryCatch(async (req, res) => {
     if (req.headers["x-internal-key"] !== process.env.INTERNAL_SERVICE_KEY) { // Kiểm tra khóa bảo mật nội bộ để đảm bảo request xuất phát từ service nội bộ tin cậy
         return res.status(403).json({
@@ -349,16 +348,18 @@ export const getCurrentOrderForRider = TryCatch(async (req, res) => {
             message: "Rider id is required",
         });
     }
+    // Tìm đơn hàng đang giao của tài xế (loại trừ đơn đã giao và đã hủy)
     const order = await Order.findOne({
         riderId,
         status: { $nin: ["delivered", "cancelled"] },
     });
     if (!order) {
-        // Không phải lỗi — chỉ là không có đơn hiện tại
+        // Không phải lỗi — chỉ là không có đơn hiện tại, trả về null
         return res.json(null);
     }
     res.json(order);
 });
+// 3. Controller cập nhật trạng thái đơn hàng bởi tài xế
 export const updatedOrderStatusRider = TryCatch(async (req, res) => {
     if (req.headers["x-internal-key"] !== process.env.INTERNAL_SERVICE_KEY) {
         return res.status(403).json({
@@ -372,19 +373,19 @@ export const updatedOrderStatusRider = TryCatch(async (req, res) => {
             message: "Order not found",
         });
     }
-    // 1. Trạng thái từ rider_assigned -> picked_up
+    // 1. Chuyển trạng thái từ rider_assigned (đã nhận đơn) -> picked_up (đã lấy hàng từ quán)
     if (order.status === "rider_assigned") {
         order.status = "picked_up";
         await order.save();
-        // Bắn socket báo nhà hàng
+        // Gửi sự kiện realtime báo cho nhà hàng
         await axios.post(`${process.env.REALTIME_SERVICE}/api/v1/internal/emit`, {
-            event: "order:picked_up", // Đổi từ order:pick_up thành order:picked_up (hoặc khớp với bên frontend nhà hàng đang lắng nghe)
+            event: "order:picked_up",
             room: `restaurant:${order.restaurantId}`,
             payload: order,
         }, { headers: { "x-internal-key": process.env.INTERNAL_SERVICE_KEY } });
-        // Bắn socket báo khách hàng
+        // Gửi sự kiện realtime báo cho khách hàng
         await axios.post(`${process.env.REALTIME_SERVICE}/api/v1/internal/emit`, {
-            event: "order:picked_up", // Đổi từ order:rider_assigned thành order:picked_up
+            event: "order:picked_up",
             room: `user:${order.userId}`,
             payload: order,
         }, { headers: { "x-internal-key": process.env.INTERNAL_SERVICE_KEY } });
@@ -392,19 +393,19 @@ export const updatedOrderStatusRider = TryCatch(async (req, res) => {
             message: "Order updated Successfully",
         });
     }
-    // 2. Trạng thái từ picked_up -> delivered
+    // 2. Chuyển trạng thái từ picked_up (đang giao) -> delivered (đã giao hàng thành công)
     if (order.status === "picked_up") {
         order.status = "delivered";
         await order.save();
-        // Bắn socket báo nhà hàng
+        // Gửi sự kiện realtime báo cho nhà hàng
         await axios.post(`${process.env.REALTIME_SERVICE}/api/v1/internal/emit`, {
             event: "order:delivered",
             room: `restaurant:${order.restaurantId}`,
             payload: order,
         }, { headers: { "x-internal-key": process.env.INTERNAL_SERVICE_KEY } });
-        // Bắn socket báo khách hàng
+        // Gửi sự kiện realtime báo cho khách hàng
         await axios.post(`${process.env.REALTIME_SERVICE}/api/v1/internal/emit`, {
-            event: "order:delivered", // Đổi từ order:rider_assigned thành order:delivered
+            event: "order:delivered",
             room: `user:${order.userId}`,
             payload: order,
         }, { headers: { "x-internal-key": process.env.INTERNAL_SERVICE_KEY } });

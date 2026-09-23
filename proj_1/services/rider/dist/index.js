@@ -6,8 +6,8 @@ import { connectRabbitMQ } from './config/rabbitmq.js';
 import { startOrderReadyConsumer } from './config/orderReady.consumer.js';
 import riderRoutes from './routes/rider.js';
 dotenv.config();
-await connectRabbitMQ();
-startOrderReadyConsumer();
+await connectRabbitMQ(); // Kết nối RabbitMQ bất đồng bộ trước khi chạy server
+startOrderReadyConsumer(); // Khởi động consumer lắng nghe queue ngay từ đầu
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -16,5 +16,4 @@ const PORT = process.env.PORT || 5005;
 app.listen(PORT, async () => {
     console.log(`Rider service is running on port ${PORT}`);
     connectDB();
-    startOrderReadyConsumer();
 });
