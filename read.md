@@ -162,5 +162,14 @@ https://console.cloudinary.com/app/c-772f9c0dead98ae314d09274664e33/assets/
 https://razorpay.com/
 - rabbitmq
 http://localhost:15672/
--stripe
+- stripe
 https://dashboard.stripe.com/login
+- dockerhub
+https://app.docker.com/accounts/phongluong3366
+hub.docker.com/repositories/phongluong3366?
+- render
+https://render.com/
+- aws
+https://aws.amazon.com/
+- vercel
+https://vercel.com/login?next=%2Fdashboard
