@@ -45,10 +45,12 @@ const OrderPage = () => {
 
         // Lắng nghe sự kiện WebSocket có tên là "order:update".
         socket.on("order:update", onOrderUpdate);
+        socket.on("order:rider_assigned", onOrderUpdate);
 
         // Dọn dẹp (cleanup) lắng nghe sự kiện khi component bị unmount để tránh rò rỉ bộ nhớ.
         return () => {
             socket.off("order:update", onOrderUpdate);
+            socket.off("order:rider_assigned", onOrderUpdate);
         }
     }, [socket]);
 

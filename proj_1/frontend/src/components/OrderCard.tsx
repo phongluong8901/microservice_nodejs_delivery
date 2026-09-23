@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { IOrder } from "../types";
 import { ORDER_ACTIONS } from "../utils/orderflow";
 import axios from "axios";
@@ -33,11 +33,36 @@ const statusColor = (status: string) => {
 
 const OrderCard = ({ order, onStatusUpdate }: props) => {
     const [loading, setLoading] = useState(false);
+    const [retryvisible, setRetryVisible] = useState(false);
+    const [retryCount, setRetryCount] = useState(0); // tăng để force reset timer
+
     const actions = ORDER_ACTIONS[order.status] || [];
+
+    useEffect(() => {
+        if (order.status !== "ready_for_rider") {
+            setRetryVisible(false);
+            return;
+        }
+
+        // Lần đầu status là "ready_for_rider" → show sau 1s
+        // Sau khi bấm Retry → đợi 12s (lâu hơn 10s của rider) mới show lại
+        const delay = retryCount === 0 ? 1000 : 12000;
+
+        setRetryVisible(false);
+        const timer = setTimeout(() => {
+            setRetryVisible(true)
+        }, delay);
+
+        return () => clearTimeout(timer);
+    }, [order.status, retryCount]); // retryCount thay đổi → timer chạy lại
+
+
+
 
     const updateStatus = async (status: string) => {
         try {
             setLoading(true);
+            setRetryVisible(false);
             await axios.put(`${restaurantService}/api/order/${order._id}`, { status }, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -46,6 +71,11 @@ const OrderCard = ({ order, onStatusUpdate }: props) => {
 
             toast.success("Order updated");
             onStatusUpdate?.();
+
+            // Nếu retry cùng status "ready_for_rider" → tăng counter để restart timer
+            if (status === "ready_for_rider") {
+                setRetryCount(prev => prev + 1);
+            }
 
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Something went wrong");
@@ -91,6 +121,16 @@ const OrderCard = ({ order, onStatusUpdate }: props) => {
                     </div>
                 )
             }
+
+            {order.status === "ready_for_rider" && retryvisible &&
+                <div className="pt-2">
+                    <button className="w-full rounded-lg border border-[#e23744] py-2 text-xs font-semibold text-[#e23744] hover:bg-red-50 disabled:opacity-50"
+                        onClick={() => updateStatus("ready_for_rider")}
+                    >
+                        Retry for Rider
+                    </button>
+
+                </div>}
         </div>
     );
 }

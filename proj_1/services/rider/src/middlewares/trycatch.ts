@@ -7,6 +7,7 @@ const TryCatch = (handler: RequestHandler): RequestHandler => {
         try {
             await handler(req, res, next);
         } catch (err: any) {
+            console.error("X Rider Service Error:", err);
             res.status(500).json({
                 message: err.message
             });

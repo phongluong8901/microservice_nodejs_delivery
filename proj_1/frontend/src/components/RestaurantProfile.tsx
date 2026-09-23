@@ -4,6 +4,7 @@ import { restaurantService } from "../main";                // Nhập biến ch�
 import axios from "axios";                                    // Nhập axios để gửi HTTP request lên server
 import toast from "react-hot-toast";                      // Nhập thư viện hiển thị thông báo toast đẹp mắt
 import { BiEdit, BiMapPin, BiSave } from "react-icons/bi";  // Nhập các icon chỉnh sửa, định vị vị trí và nút lưu từ react-icons
+import { useAppData } from "../context/AppContext";
 
 interface props {
     restaurant: IRestaurant;                                  // Thông tin chi tiết của nhà hàng truyền từ component cha vào
@@ -68,6 +69,27 @@ const RestaurantProfile = ({ restaurant, isSeller, onUpdate }: props) => {
             setLoading(false);                                // Tắt trạng thái loading khi hoàn tất
         }
     };
+
+    const { setIsAuth, setUser } = useAppData();
+
+    const logoutHandler = async () => {
+        await axios.put(                 // Gửi HTTP PUT request cập nhật trạng thái mở/đóng lên server
+            `${restaurantService}/api/restaurant/status`,
+            {
+                status: false
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}` // Đính kèm JWT token xác thực quyền chủ quán
+                }
+            }
+        );
+        localStorage.setItem("token", "");
+        setIsAuth(false);
+        setUser(null);
+
+        toast.success("loggedOut successfully");
+    }
 
     return (
         // Khung bao ngoài profile nhà hàng: căn giữa, giới hạn chiều rộng tối đa, bo tròn góc và đổ bóng nhẹ
@@ -162,11 +184,20 @@ const RestaurantProfile = ({ restaurant, isSeller, onUpdate }: props) => {
                         <button
                             onClick={toggleOpenstatus}
                             className={`rounded-lg px-4 py-1.5 text-sm font-medium text-white ${isOpen
-                                    ? "bg-red-600 hover:bg-red-700"       // Nếu đang mở thì hiển thị nút màu đỏ để đóng cửa
-                                    : "bg-green-600 hover:bg-green-700"   // Nếu đang đóng thì hiển thị nút màu xanh để mở cửa
+                                ? "bg-red-600 hover:bg-red-700"       // Nếu đang mở thì hiển thị nút màu đỏ để đóng cửa
+                                : "bg-green-600 hover:bg-green-700"   // Nếu đang đóng thì hiển thị nút màu xanh để mở cửa
                                 }`}
                         >
                             {isOpen ? "Close Restaurant" : "Open Restaurant"}
+                        </button>
+                    )}
+
+                    {isSeller && (
+                        <button
+                            onClick={logoutHandler}
+                            className={`rounded-lg px-4 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700}`}
+                        >
+                            Logout
                         </button>
                     )}
                 </div>

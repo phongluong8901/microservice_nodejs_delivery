@@ -53,62 +53,64 @@ const Addrestaurant = ({ fetchMyRestaurant }: props) => {
         }
     }
 
-    return <div className="min-h-screen bg-gray-50 px-4 py-6">  {/* Khung bọc toàn màn hình, nền xám nhạt, có padding */}
-        <div className="mx-auto max-w-lg rounded-xl bg-white p-6 shadow-sm space-y-5"> {/* Khung form chính giữa, bo tròn, nền trắng, có bóng mờ */}
-            <h1 className="text-xl font-semibold">Add Your Restaurant</h1> {/* Tiêu đề form */}
+    return (
+        <div className="min-h-screen bg-gray-50 px-4 py-6">  {/* Khung bọc toàn màn hình, nền xám nhạt, có padding */}
+            <div className="mx-auto max-w-lg rounded-xl bg-white p-6 shadow-sm space-y-5"> {/* Khung form chính giữa, bo tròn, nền trắng, có bóng mờ */}
+                <h1 className="text-xl font-semibold">Add Your Restaurant</h1> {/* Tiêu đề form */}
 
-            {/* Input nhập tên nhà hàng */}
-            <input
-                type="text"
-                placeholder="Restaurant Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-lg border px-4 py-2 text-sm outline-none"
-            />
+                {/* Input nhập tên nhà hàng */}
+                <input
+                    type="text"
+                    placeholder="Restaurant Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full rounded-lg border px-4 py-2 text-sm outline-none"
+                />
 
-            {/* Input nhập số điện thoại liên hệ */}
-            <input
-                type="number"
-                placeholder="Contact Number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full rounded-lg border px-4 py-2 text-sm outline-none"
-            />
+                {/* Input nhập số điện thoại liên hệ */}
+                <input
+                    type="number"
+                    placeholder="Contact Number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full rounded-lg border px-4 py-2 text-sm outline-none"
+                />
 
-            {/* Textarea nhập mô tả nhà hàng */}
-            <textarea
-                placeholder="Restaurant Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full rounded-lg border px-4 py-2 text-sm outline-none"
-            />
+                {/* Textarea nhập mô tả nhà hàng */}
+                <textarea
+                    placeholder="Restaurant Description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full rounded-lg border px-4 py-2 text-sm outline-none"
+                />
 
-            {/* Khu vực chọn file ảnh nhà hàng */}
-            <label className="flex cursor-poniter items-center gap-3 rounded-lg border p-4 text-sm text-gray-600 hover:bg-gray-50">
-                <BiUpload className="h-5 w-5 text-red-500" /> {/* Icon upload */}
-                {image ? image.name : "Upload restaurant image"} {/* Nếu đã chọn ảnh thì hiển thị tên file, ngược lại hiển thị chữ hướng dẫn */}
-                <input type="file" accept="image/*" hidden onChange={e => setImage(e.target.files?.[0] || null)} /> {/* Input file ẩn, chỉ nhận file ảnh, khi chọn sẽ lưu vào state image */}
-            </label>
+                {/* Khu vực chọn file ảnh nhà hàng */}
+                <label className="flex cursor-poniter items-center gap-3 rounded-lg border p-4 text-sm text-gray-600 hover:bg-gray-50">
+                    <BiUpload className="h-5 w-5 text-red-500" /> {/* Icon upload */}
+                    {image ? image.name : "Upload restaurant image"} {/* Nếu đã chọn ảnh thì hiển thị tên file, ngược lại hiển thị chữ hướng dẫn */}
+                    <input type="file" accept="image/*" hidden onChange={e => setImage(e.target.files?.[0] || null)} /> {/* Input file ẩn, chỉ nhận file ảnh, khi chọn sẽ lưu vào state image */}
+                </label>
 
-            {/* Khu vực hiển thị vị trí định vị tự động */}
-            <div className="flex items-start gap-3 rounded-lg border p-4">
-                <BiMapPin className="mt-0.5 h-5 w-5 text-red-500" /> {/* Icon bản đồ */}
-                <div className="text-sm">
-                    {
-                        loadingLocation ? "Fetching you location ..." : location?.formattedAddress || "Location not available" // Nếu đang lấy tọa độ thì hiện chữ loading, nếu có địa chỉ thì hiện địa chỉ, không thì báo không có
-                    }
+                {/* Khu vực hiển thị vị trí định vị tự động */}
+                <div className="flex items-start gap-3 rounded-lg border p-4">
+                    <BiMapPin className="mt-0.5 h-5 w-5 text-red-500" /> {/* Icon bản đồ */}
+                    <div className="text-sm">
+                        {
+                            loadingLocation ? "Fetching you location ..." : location?.formattedAddress || "Location not available" // Nếu đang lấy tọa độ thì hiện chữ loading, nếu có địa chỉ thì hiện địa chỉ, không thì báo không có
+                        }
+                    </div>
                 </div>
-            </div>
 
-            {/* Nút bấm xác nhận gửi form */}
-            <button
-                className="w-full rounded-lg py-3 text-sm font-semibold text-white bg-[#e23744]"
-                disabled={submitting} // Khóa nút bấm khi đang trong quá trình gửi request
-                onClick={handleSubmit}> {/* Khi click sẽ gọi hàm handleSubmit xử lý dữ liệu */}
-                {submitting ? "Submitting ..." : "Add Restaurant"} {/* Thay đổi chữ trên nút tùy theo trạng thái submitting */}
-            </button>
+                {/* Nút bấm xác nhận gửi form */}
+                <button
+                    className="w-full rounded-lg py-3 text-sm font-semibold text-white bg-[#e23744]"
+                    disabled={submitting} // Khóa nút bấm khi đang trong quá trình gửi request
+                    onClick={handleSubmit}> {/* Khi click sẽ gọi hàm handleSubmit xử lý dữ liệu */}
+                    {submitting ? "Submitting ..." : "Add Restaurant"} {/* Thay đổi chữ trên nút tùy theo trạng thái submitting */}
+                </button>
+            </div>
         </div>
-    </div>
+    )
 };
 
 export default Addrestaurant; // Xuất component ra ngoài để sử dụng ở các file khác

@@ -44,6 +44,8 @@ npm i @types/multer
 
 npm install -D tsx
 
+npm i amqplib @types/amqplib
+
 
 --- cd admin
 npm init -y

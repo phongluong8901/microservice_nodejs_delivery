@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import type { IOrder } from "../types";
 import { useSocket } from "../context/SocketContext";
 import axios from "axios";
@@ -103,6 +103,29 @@ const RestaurantOrders = ({ restaurantId }: { restaurantId: string }) => {
             socket.off("order:new", onNewOrder);
         };
     }, [socket, soundEnabled]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const onUpdateOrder = () => {
+            fetchOrders();
+        }
+
+        const handleOrderUpdate = () => {
+            fetchOrders();
+        }
+
+
+        socket.on("order:rider_assigned", onUpdateOrder);
+        socket.on("order:picked_up", handleOrderUpdate);
+        socket.on("order:delivered", handleOrderUpdate);
+
+        return () => {
+            socket.off("order:rider_assigned", onUpdateOrder);
+            socket.off("order:picked_up", handleOrderUpdate);
+            socket.off("order:delivered", handleOrderUpdate);
+        }
+    }, [socket]);
 
     if (loading) {
         return <p className="text-gray-500">Loading Orders</p>
