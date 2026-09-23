@@ -57,3 +57,9 @@ git checkout -b p10_rider_service
 git add .
 git commit -m "change: first"
 git push origin -u p10_rider_service
+
+---
+git checkout -b main
+git add .
+git commit -m "change: first"
+git push origin -u main
